@@ -1,0 +1,41 @@
+{
+  "background": "/assets/g4.jpg",
+  "objects" : [
+    {
+      "top": 325,
+      "left": 395,
+      "width": 80,
+      "height": 160,
+      "url": "/assets/zont1.png"
+    },
+    {
+      "top": 400,
+      "left": 149,
+      "width": 80,
+      "height": 160,
+      "url": "/assets/zont2.png"
+    },
+    {
+      "top": 650,
+      "left": 0,
+      "width": 200,
+      "height": 72,
+      "url": "/assets/zont3.png"
+    },
+    {
+      "top": 350,
+      "left": 250,
+      "width": 100,
+      "height": 286,
+      "url": "/assets/zont4.png"
+    },
+    {
+      "top": 633,
+      "left": 180,
+      "width": 130,
+      "height": 220,
+      "url": "/assets/zont5.png"
+    }
+  ],
+  "minFoundObjects": 3
+}

@@ -1,0 +1,49 @@
+body {
+    padding: 0;
+    margin: 0 auto;
+}
+
+.app {
+    background: #000;
+    margin: 0 auto;
+    width: 250px;
+    height: 444px;
+    position: relative;
+}
+
+.background {
+    width: 250px;
+    height: 444px;
+    z-index: -10;
+}
+
+.umbrella {
+    position: absolute;
+    z-index: 10;
+}
+
+.selected {
+    visibility: hidden;
+}
+
+.counter {
+    position: absolute;
+    top: 25px;
+    left: 135px;
+}
+
+.button-hidden {
+    visibility: hidden;
+    position: absolute;
+    z-index: 25;
+    top: 320px;
+    left: 10px;
+    width: 230px;
+    height: 76px;
+    transition: all 1s ease-in-out;
+}
+
+.button {
+    visibility: visible;
+    top: 350px;
+}
