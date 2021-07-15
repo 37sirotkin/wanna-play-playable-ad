@@ -3,12 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <title>Playable Ad</title>
-    <link rel="stylesheet" href="index.css">
-</head>
-<body>
-    <div class="app" id="app">
+    <style>
+        body {
+            padding: 0;
+            margin: 0 auto;
+        }
 
-    </div>
-<script type="module" src="dapi.js"></script>
+        .app {
+            background: #000;
+            margin: 0 auto;
+            width: 480px;
+            height: 853px;
+            position: relative;
+        }
+
+        .background {
+            z-index: -10;
+            width: 100%;
+            height: 100%;
+        }
+
+        .object {
+            position: absolute;
+            z-index: 10;
+            transition: all 1s ease-in-out;
+        }
+
+        .object-hidden {
+            visibility: hidden;
+            opacity: 0;
+        }
+
+        .counter {
+            position: absolute;
+        }
+
+        .button-hidden {
+            visibility: hidden;
+            opacity: 0;
+            position: absolute;
+            z-index: 25;
+            transition: all 1s ease-in-out;
+        }
+
+        .button {
+            visibility: visible;
+            opacity: 100%;
+        }
+
+        .screen-size {
+            z-index: 50;
+            font-size: 30px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+    </style>
+    <script>
+        function getScript(e, i) {
+            var n = document.createElement("script");
+            n.type = "text/javascript", n.async = !0, i && (n.onload = i), n.src = e, document.head.appendChild(n)
+        }
+
+        function parseMessage(e) {
+            var i = e.data, n = i.indexOf(DOLLAR_PREFIX + RECEIVE_MSG_PREFIX);
+            if (-1 !== n) {
+                var t = i.slice(n + 2);
+                return getMessageParams(t)
+            }
+            return {}
+        }
+
+        function getMessageParams(e) {
+            var i, n = [], t = e.split("/"), a = t.length;
+            if (-1 === e.indexOf(RECEIVE_MSG_PREFIX)) {
+                if (a >= 2 && a % 2 === 0) for (i = 0; a > i; i += 2) n[t[i]] = t.length < i + 1 ? null : decodeURIComponent(t[i + 1])
+            } else {
+                var o = e.split(RECEIVE_MSG_PREFIX);
+                void 0 !== o[1] && (n = JSON && JSON.parse(o[1]))
+            }
+            return n
+        }
+
+        function getDapi(e) {
+            var i = parseMessage(e);
+            if (!i || i.name === GET_DAPI_URL_MSG_NAME) {
+                var n = i.data;
+                getScript(n, onDapiReceived)
+            }
+        }
+
+        function invokeDapiListeners() {
+            for (var e in dapiEventsPool) dapiEventsPool.hasOwnProperty(e) && dapi.addEventListener(e, dapiEventsPool[e])
+        }
+
+        function onDapiReceived() {
+            dapi = window.dapi, window.removeEventListener("message", getDapi), invokeDapiListeners()
+        }
+
+        function init() {
+            window.dapi.isDemoDapi && (window.parent.postMessage(DOLLAR_PREFIX + SEND_MSG_PREFIX + JSON.stringify({state: "getDapiUrl"}), "*"), window.addEventListener("message", getDapi, !1))
+        }
+
+        var DOLLAR_PREFIX = "$$", RECEIVE_MSG_PREFIX = "DAPI_SERVICE:", SEND_MSG_PREFIX = "DAPI_AD:",
+            GET_DAPI_URL_MSG_NAME = "connection.getDapiUrl", dapiEventsPool = {}, dapi = window.dapi || {
+                isReady: function () {
+                    return !1
+                }, addEventListener: function (e, i) {
+                    dapiEventsPool[e] = i
+                }, removeEventListener: function (e) {
+                    delete dapiEventsPool[e]
+                }, isDemoDapi: !0
+            };
+        init();
+    </script>
+</head>
+
+<body>
+<div class="app" id="app">
+
+</div>
+<script>
+    const config = {
+        "background": "https://i.ibb.co/QbdJM21/g4.jpg",
+        "objects": [
+            {
+                "top": 425,
+                "left": 620,
+                "width": 100,
+                "height": 233,
+                "url": "https://i.ibb.co/y4Rqzr2/zont1.png"
+            },
+            {
+                "top": 615,
+                "left": 225,
+                "width": 140,
+                "height": 217,
+                "url": "https://i.ibb.co/fCvR3qF/zont2.png"
+            },
+            {
+                "top": 970,
+                "left": 0,
+                "width": 260,
+                "height": 93,
+                "url": "https://i.ibb.co/FY32Y3s/zont3.png"
+            },
+            {
+                "top": 540,
+                "left": 400,
+                "width": 140,
+                "height": 400,
+                "url": "https://i.ibb.co/kJwfgH4/zont4.png"
+            },
+            {
+                "top": 942,
+                "left": 200,
+                "width": 200,
+                "height": 338,
+                "url": "https://i.ibb.co/0hxxWTv/zont5.png"
+            }
+        ],
+        counter: {
+            top: 70,
+            left: 380,
+            fontSize: 45
+        },
+        button: {
+            top: 1050,
+            left: 100,
+            width: 530,
+            height: 175
+        },
+        "minFoundObjects": 3
+    }
+
+    window.onload = function(){
+        (dapi.isReady()) ? onReadyCallback() : dapi.addEventListener("ready", onReadyCallback);
+        //Here you can put other code that not related to dapi logic
+    };
+
+    function onReadyCallback(){
+        //No need to listen to this event anymore
+        dapi.removeEventListener("ready", onReadyCallback);
+
+        //If the ad is visible start the game
+        dapi.isViewable() ? startGame() : null;
+        //Use dapi functions
+        dapi.addEventListener("viewableChange", viewableChangeCallback);
+        dapi.addEventListener("adResized", orientationCallback);
+    }
+
+    function startGame() {
+        //start your game
+        var screenSize = dapi.getScreenSize();
+
+        const startAd = () => {
+            const app = document.getElementById('app');
+            app.style.width = screenSize.width + 'px';
+            app.style.height = screenSize.height + 'px';
+            app.innerHTML = `<img id="background" class="background" src="https://i.ibb.co/b1705jK/g1.jpg" alt="background"/>`;
+            const background = document.getElementById('background');
+            background.addEventListener('click', () => startGameAd(background, app));
+        }
+
+        const startGameAd = (background, app) => {
+            background.src = config.background;
+
+            const k = {
+                width: app.offsetWidth / 720,
+                height: app.offsetHeight / 1280
+            }
+
+            let count = 0;
+            const counter = document.createElement('div');
+            setCounterParams(counter, k);
+            counter.innerHTML = `${count}/5`;
+            app.appendChild(counter);
+
+            const button = document.createElement('img');
+            button.id = 'button';
+            button.src = 'https://i.ibb.co/Gp8vSYC/knopka.png';
+            button.classList.add('button-hidden');
+            button.style.top = (config.button.top * k.height) + 'px';
+            button.style.left = config.button.left * k.width + 'px';
+            button.style.width = config.button.width * k.width + 'px';
+            button.style.height = config.button.height * k.height + 'px';
+            app.appendChild(button);
+
+            config.objects.forEach(object => {
+                const img = document.createElement('img');
+                img.classList.add('object');
+                setObjectParams(img, object, k);
+                app.appendChild(img);
+            });
+            selectObject(count, counter);
+
+        }
+
+        const setObjectParams = (img, object, k) => {
+            img.src = object.url;
+            img.style.left = object.left * k.width + 'px';
+            img.style.top = object.top * k.height + 'px';
+            img.style.width = object.width * k.width +  'px';
+            img.style.height = object.height * k.height + 'px';
+        }
+
+        const setCounterParams = (counter, k) => {
+            counter.style.position = 'absolute';
+            counter.style.left = config.counter.left * k.width + 'px';
+            counter.style.top = config.counter.top * k.height + 'px';
+            counter.style.fontSize = config.counter.fontSize * k.height + 'px';
+        }
+
+        const selectObject = (count, counter, k) => {
+            const allObjects = document.querySelectorAll('.object');
+            const button = document.getElementById('button');
+            allObjects.forEach(u => {
+                u.addEventListener('click', () => {
+                    count = count + 1;
+                    counter.innerHTML = `${count}/${config.objects.length}`;
+                    u.classList.add('object-hidden');
+                    u.style.top = 0 + 'px';
+
+                    if (count === config.minFoundObjects) {
+                        button.classList.add('button');
+                    }
+                    button.addEventListener('click', () => startAd());
+                });
+            })
+        }
+
+        startAd();
+    }
+
+    function viewableChangeCallback(e){
+        e.isViewable ? this.startGame() : pause(); //start the game or resume
+    }
+
+</script>
 </body>
 </html>
